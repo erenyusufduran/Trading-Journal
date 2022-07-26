@@ -27,7 +27,7 @@ const createTradeList = async (req, res) => {
         throw new BadRequestError("Please provide name and exchange.");
     }
     const tradeList = await TradeLists.create({ ...req.body });
-    res.status(StatusCodes.OK).json({ tradeList });
+    res.status(StatusCodes.CREATED).json({ tradeList });
 }
 
 module.exports = {

@@ -11,7 +11,8 @@ const TradeSchema = new mongoose.Schema({
         enum: {
             values: ["short", "long"],
             message: "{VALUE} is not supported.",
-        }
+        },
+        required: [true, "Please provide short or long."]
     },
     entry: {
         type: Number,
@@ -38,7 +39,7 @@ const TradeSchema = new mongoose.Schema({
         enum: {
             values: ["win", "lose"],
             message: "{VALUE} is not supported."
-        }
+        },
     },
     link: {
         type: String,
@@ -55,6 +56,6 @@ const TradeSchema = new mongoose.Schema({
         required: [true, "Please provide a trade list."],
 
     }
-}, { versionKey: false });
+}, { versionKey: false, timestamps: true });
 
 module.exports = mongoose.model("Trade", TradeSchema);

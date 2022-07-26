@@ -15,7 +15,7 @@ const tradesRouter = Router();
 tradesRouter.route("/").post(createTradeList).get(getTradeLists);
 tradesRouter.route("/:id").get(getOneTradeList);
 
-tradesRouter.route("/details").post(createTrade).get(getTrades);
-tradesRouter.route("/details/:id").get(getOneTrade);
+tradesRouter.route("/:id/details").post(createTrade).get(getTrades);
+tradesRouter.route("/:id/details/:tradeID").get(getOneTrade);
 
 module.exports = tradesRouter;
