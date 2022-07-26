@@ -1,31 +1,28 @@
-const db = require("../db");
+const User = require("../models/User");
 const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, UnauthenticatedError } = require("../errors");
 
 const register = async (req, res) => {
-    const { username, email, password } = req.body;
-    const isExisting = await db.query("SELECT * FROM users WHERE email = $1", [email]);
-    if (!(isExisting.rowCount === 0)) {
-        throw new BadRequestError("User already exists.");
-    }
-    const user = await db.query("INSERT INTO users (username,email,password) VALUES ($1,$2,$3) RETURNING *", [username, email, password]);
-    res.status(StatusCodes.CREATED).json({ user: { username: user.rows[0].username, email: user.rows[0].email } });
+    const user = await User.create({ ...req.body });
+    const token = user.createJWT();
+    res.status(StatusCodes.OK).json({ user: { name: user.name }, token });
 }
 
 const login = async (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) {
+    const { email, password } = req.body;
+    if (!email || !password) {
         throw new BadRequestError("Please provide email and password.");
     }
-    const user = await db.query("SELECT * FROM users WHERE username = $1", [username]);
-    if ((user.rowCount === 0)) {
+    const user = await User.findOne({ email });
+    if (!user) {
         throw new UnauthenticatedError("Invalid Credentials...");
     }
-    const isPasswordCorrect = await db.query("SELECT password FROM users WHERE password = $1", [password]);
-    if ((isPasswordCorrect.rowCount === 0)) {
+    const isPasswordCorrect = await user.comparePassword(password);
+    if (!isPasswordCorrect) {
         throw new UnauthenticatedError("Invalid Credentials...");
     }
-    res.status(StatusCodes.OK).json({ user: { username: user.rows[0].username, email: user.rows[0].email } });
+    const token = user.createJWT();
+    res.status(StatusCodes.OK).json({ user: { name: user.name }, token });
 }
 
 module.exports = {
