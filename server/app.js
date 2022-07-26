@@ -1,3 +1,6 @@
+require("dotenv").config()
+require("express-async-errors");
+
 const express = require('express');
 const helmet = require("helmet");
 const cors = require("cors");
@@ -8,7 +11,7 @@ const authRouter = require("./routes/auth");
 const notFoundMiddleware = require("./middlewares/not-found");
 
 const app = express();
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT;
 
 app.set("trust proxy", 1);
 app.use(rateLimit({
