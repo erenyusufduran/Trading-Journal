@@ -6,8 +6,7 @@ const rateLimit = require('express-rate-limit');
 
 const authenticationMiddleWare = require("./middlewares/authentication");
 
-const tradeRouter = require("./routes/trade");
-const tradeListRouter = require('./routes/tradeList');
+const tradesRouter = require('./routes/trades');
 const authRouter = require("./routes/auth");
 const notFoundMiddleware = require("./middlewares/not-found");
 
@@ -28,8 +27,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/auth", authRouter);
-app.use("/trades", authenticationMiddleWare, tradeListRouter);
-app.use("/trades/details", tradeRouter);
+app.use("/trades", authenticationMiddleWare, tradesRouter);
 
 app.use(notFoundMiddleware);
 
