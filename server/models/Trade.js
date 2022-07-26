@@ -55,7 +55,43 @@ const TradeSchema = new mongoose.Schema({
         ref: "TradeList",
         required: [true, "Please provide a trade list."],
 
+    },
+    createdBy: {
+        type: mongoose.Types.ObjectId,
+        ref: "User",
+        required: [true, "Please provide user."],
     }
 }, { versionKey: false, timestamps: true });
+
+TradeSchema.methods.calculateProfitOrLoss = function (shortLong, size, entry, tp, sl, wl = "win") {
+    let profit = 0;
+    if (wl === "win") {
+        if (shortLong === "short") {
+            profit = (entry - tp) * size;
+        } else {
+            profit = (tp - entry) * size;
+        }
+    } else {
+        if (shortLong === "short") {
+            profit = (entry - sl) * size;
+        } else {
+            profit = (sl - entry) * size;
+        }
+    }
+    return profit;
+};
+
+TradeSchema.methods.calculateR = function (shortLong, entry, tp, sl, wl = "win") {
+    let r = 0;
+    if (wl === "lose") {
+        r = -1;
+    }
+    if (shortLong === "short") {
+        r = (entry - tp) / (sl - entry);
+    } else {
+        r = (tp - entry) / (entry - sl);
+    }
+    return r;
+};
 
 module.exports = mongoose.model("Trade", TradeSchema);
