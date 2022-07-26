@@ -7,6 +7,10 @@ const cors = require("cors");
 const xss = require("xss-clean");
 const rateLimit = require('express-rate-limit');
 
+const connectDB = require("./db/connect");
+const authenticationMiddleWare = require("./middlewares/authentication");
+
+const tradeRouter = require('./routes/trades');
 const authRouter = require("./routes/auth");
 const notFoundMiddleware = require("./middlewares/not-found");
 
@@ -28,11 +32,18 @@ app.get("/", (req, res) => {
 });
 
 app.use("/auth", authRouter);
+app.use("/trades", authenticationMiddleWare, tradeRouter);
+
 
 app.use(notFoundMiddleware);
 
-function createServer() {
-    app.listen(PORT, () => console.log(`Server is listening on ${PORT}`))
+async function startServer() {
+    try {
+        await connectDB(process.env.MONGO_URI);
+        app.listen(PORT, () => console.log(`Server is listening on ${PORT}`));
+    } catch (err) {
+        console.log(err);
+    }
 }
 
-createServer();
+startServer();
