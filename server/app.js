@@ -8,7 +8,9 @@ const authenticationMiddleWare = require("./middlewares/authentication");
 
 const tradesRouter = require('./routes/trades');
 const authRouter = require("./routes/auth");
+
 const notFoundMiddleware = require("./middlewares/not-found");
+const errorHandlerMiddleware = require("./middlewares/error-handler");
 
 const app = express();
 
@@ -30,5 +32,6 @@ app.use("/auth", authRouter);
 app.use("/trades", authenticationMiddleWare, tradesRouter);
 
 app.use(notFoundMiddleware);
+app.use(errorHandlerMiddleware);
 
 module.exports = app;
