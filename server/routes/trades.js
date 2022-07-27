@@ -9,7 +9,9 @@ const {
 const {
     createTrade,
     getTrades,
-    getOneTrade
+    getOneTrade,
+    updateTrade,
+    deleteTrade
 } = require("../controllers/trade");
 
 const tradesRouter = Router();
@@ -18,6 +20,6 @@ tradesRouter.route("/").post(createTradeList).get(getTradeLists);
 tradesRouter.route("/:id").get(getOneTradeList).patch(updateTradeList).delete(deleteTradeList);
 
 tradesRouter.route("/:id/details").post(createTrade).get(getTrades);
-tradesRouter.route("/:id/details/:tradeID").get(getOneTrade);
+tradesRouter.route("/:id/details/:tradeID").get(getOneTrade).patch(updateTrade).delete(deleteTrade);
 
 module.exports = tradesRouter;

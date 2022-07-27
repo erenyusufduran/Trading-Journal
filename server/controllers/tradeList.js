@@ -46,7 +46,7 @@ const updateTradeList = async (req, res) => {
         { new: true, runValidators: true }
     );
     if (!tradeList) {
-        throw new NotFoundError(`No trade list with id ${tradeListId}`);
+        throw new NotFoundError(`No trade list with id ${id}`);
     }
     res.status(StatusCodes.OK).json({ tradeList });
 }
@@ -58,7 +58,7 @@ const deleteTradeList = async (req, res) => {
     } = req;
     const tradeList = await TradeList.findOneAndDelete({ _id: id, createdBy: userId });
     if (!tradeList) {
-        throw new NotFoundError(`No trade list with id ${tradeListId}`);
+        throw new NotFoundError(`No trade list with id ${id}`);
     }
     await Trade.deleteMany({ belongTo: tradeList._id })
     res.status(StatusCodes.NO_CONTENT).send();

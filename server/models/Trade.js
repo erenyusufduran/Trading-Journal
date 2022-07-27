@@ -78,7 +78,7 @@ TradeSchema.methods.calculateProfitOrLoss = function (shortLong, size, entry, tp
             profit = (sl - entry) * size;
         }
     }
-    return profit;
+    return profit.toFixed(2);
 };
 
 TradeSchema.methods.calculateR = function (shortLong, entry, tp, sl, wl = "win") {
@@ -91,7 +91,7 @@ TradeSchema.methods.calculateR = function (shortLong, entry, tp, sl, wl = "win")
     if (wl === "lose") {
         r = -1;
     }
-    return r;
+    return r.toFixed(2);
 };
 
 module.exports = mongoose.model("Trade", TradeSchema);
