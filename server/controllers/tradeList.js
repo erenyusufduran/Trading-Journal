@@ -1,16 +1,17 @@
-const TradeLists = require("../models/TradeList");
+const TradeList = require("../models/TradeList");
+const Trade = require("../models/Trade");
 const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, UnauthenticatedError, NotFoundError } = require("../errors");
 
 const getTradeLists = async (req, res) => {
     const { userId } = req.user;
-    const tradeLists = await TradeLists.find({ createdBy: userId }).sort("createdAt");
+    const tradeLists = await TradeList.find({ createdBy: userId }).sort("createdAt");
     res.status(StatusCodes.OK).json({ tradeLists, count: tradeLists.length });
 }
 
 const getOneTradeList = async (req, res) => {
     const { user: userId, params: { id: tradeListId } } = req;
-    const tradeList = await TradeLists.findOne({ _id: tradeListId, createdBy: userId.userId });
+    const tradeList = await TradeList.findOne({ _id: tradeListId, createdBy: userId.userId });
     if (!tradeList) {
         throw new NotFoundError(`No trade list with id ${tradeListId}`);
     }
@@ -26,10 +27,43 @@ const createTradeList = async (req, res) => {
     if (!name || !exchange) {
         throw new BadRequestError("Please provide name and exchange.");
     }
-    const tradeList = await TradeLists.create({ ...req.body });
+    const tradeList = await TradeList.create({ ...req.body });
     res.status(StatusCodes.CREATED).json({ tradeList });
 }
 
+const updateTradeList = async (req, res) => {
+    const {
+        body: { name, exchange },
+        user: { userId },
+        params: { id }
+    } = req;
+    if (name === "" || exchange === "") {
+        throw new BadRequestError("Name or exchange fields cannot be empty");
+    }
+    const tradeList = await TradeList.findByIdAndUpdate(
+        { _id: id, createdBy: userId },
+        req.body,
+        { new: true, runValidators: true }
+    );
+    if (!tradeList) {
+        throw new NotFoundError(`No trade list with id ${tradeListId}`);
+    }
+    res.status(StatusCodes.OK).json({ tradeList });
+}
+
+const deleteTradeList = async (req, res) => {
+    const {
+        user: { userId },
+        params: { id },
+    } = req;
+    const tradeList = await TradeList.findOneAndDelete({ _id: id, createdBy: userId });
+    if (!tradeList) {
+        throw new NotFoundError(`No trade list with id ${tradeListId}`);
+    }
+    await Trade.deleteMany({ belongTo: tradeList._id })
+    res.status(StatusCodes.NO_CONTENT).send();
+}
+
 module.exports = {
-    createTradeList, getTradeLists, getOneTradeList
+    createTradeList, getTradeLists, getOneTradeList, updateTradeList, deleteTradeList
 }

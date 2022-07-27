@@ -83,13 +83,13 @@ TradeSchema.methods.calculateProfitOrLoss = function (shortLong, size, entry, tp
 
 TradeSchema.methods.calculateR = function (shortLong, entry, tp, sl, wl = "win") {
     let r = 0;
-    if (wl === "lose") {
-        r = -1;
-    }
     if (shortLong === "short") {
         r = (entry - tp) / (sl - entry);
     } else {
         r = (tp - entry) / (entry - sl);
+    }
+    if (wl === "lose") {
+        r = -1;
     }
     return r;
 };

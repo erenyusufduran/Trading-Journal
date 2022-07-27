@@ -1,17 +1,15 @@
 const Trade = require("../models/Trade");
 const { StatusCodes } = require("http-status-codes");
-const { BadRequestError, UnauthenticatedError, NotFoundError } = require("../errors");
+const { BadRequestError, NotFoundError } = require("../errors");
 
 const getTrades = async (req, res) => {
-    const { userId } = req.user;
-    const { id } = req.params;
+    const { user: { userId }, params: { id } } = req;
     const trades = await Trade.find({ createdBy: userId, belongTo: id, }).sort("createdAt");
     res.status(StatusCodes.OK).json({ trades, count: trades.length });
 }
 
 const getOneTrade = async (req, res) => {
-    const { userId } = req.user;
-    const { id, tradeID } = req.params;
+    const { user: { userId }, params: { id, tradeID } } = req;
     const trade = await Trade.findOne({ createdBy: userId, belongTo: id, _id: tradeID });
     if (!trade) {
         throw new NotFoundError(`No trade with id ${tradeListId}`);
@@ -20,9 +18,11 @@ const getOneTrade = async (req, res) => {
 }
 
 const createTrade = async (req, res) => {
-    const { id } = req.params;
-    const { userId } = req.user;
-    const { pair, shortLong, entry, size, tp, sl, wl } = req.body;
+    const {
+        user: { userId },
+        params: { id },
+        body: { pair, shortLong, entry, size, tp, sl, wl }
+    } = req;
     if (!pair || !shortLong || !entry || !size) {
         throw new BadRequestError("Please provide pair, short/long, entry and size.");
     }
