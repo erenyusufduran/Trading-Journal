@@ -48,31 +48,36 @@ const createTrade = async (req, res) => {
 const updateTrade = async (req, res) => {
     const {
         user: { userId },
-        params: { id, tradeID },
+        params: { tradeID },
+    } = req;
+    let {
         body: { pair, shortLong, entry, size, tp, sl, wl }
     } = req;
     if (!pair || !shortLong || !entry || !size) {
         throw new BadRequestError("Please provide pair, short/long, entry and size.");
     }
-
-    const updatedTrade = await Trade.findByIdAndUpdate(
+    const trade = await Trade.findOne(
         { _id: tradeID, createdBy: userId },
-        req.body,
-        { new: true, runValidators: true });
-    if (!updatedTrade) {
-        throw new NotFoundError(`No trade with id ${trade._id}`);
+        req.body);
+    if (!trade) {
+        throw new NotFoundError(`No trade with id ${tradeID}`);
     }
 
-    updatedTrade.profit = 0;
-    updatedTrade.r = 0;
+    trade.profit = 0;
+    trade.r = 0;
     if (tp && sl) {
-        updatedTrade.r = updatedTrade.calculateR(shortLong, entry, tp, sl);
-        updatedTrade.profit = updatedTrade.calculateProfitOrLoss(shortLong, size, entry, tp, sl);
+        trade.r = trade.calculateR(shortLong, entry, tp, sl);
+        trade.profit = trade.calculateProfitOrLoss(shortLong, size, entry, tp, sl);
         if (wl) {
-            updatedTrade.r = updatedTrade.calculateR(shortLong, entry, tp, sl, wl);
-            updatedTrade.profit = updatedTrade.calculateProfitOrLoss(shortLong, size, entry, tp, sl, wl);
+            trade.r = trade.calculateR(shortLong, entry, tp, sl, wl);
+            trade.profit = trade.calculateProfitOrLoss(shortLong, size, entry, tp, sl, wl);
         }
     }
+    tp ? trade.tp = tp : trade.tp = 0;
+    sl ? trade.sl = sl : trade.sl = 0;
+    const updatedTrade = await Trade.findOneAndUpdate(
+        { id: tradeID }, trade, { new: true, runValidators: true }
+    );
     res.status(StatusCodes.OK).json({ updatedTrade });
 }
 
@@ -81,10 +86,11 @@ const deleteTrade = async (req, res) => {
         user: { userId },
         params: { tradeID },
     } = req;
-    const trade = await Trade.findOneAndDelete({ _id: tradeID, createdBy: userId });
+    const trade = await Trade.findOne({ createdBy: userId, _id: tradeID });
     if (!trade) {
-        throw new NotFoundError(`No trade with id ${id}`);
+        throw new NotFoundError(`No trade with id ${tradeID}`);
     }
+    await Trade.deleteOne(trade);
     res.status(StatusCodes.NO_CONTENT).send({ status: "success" });
 }
 
