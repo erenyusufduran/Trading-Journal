@@ -1,97 +1,112 @@
 const mongoose = require("mongoose");
 
-const TradeSchema = new mongoose.Schema({
+const TradeSchema = new mongoose.Schema(
+  {
     date: { type: Date },
     pair: {
-        type: String,
-        required: [true, "Please provide a pair name."],
+      type: String,
+      required: [true, "Please provide a pair name."],
     },
     shortLong: {
-        type: String,
-        enum: {
-            values: ["short", "long"],
-            message: "{VALUE} is not supported.",
-        },
-        required: [true, "Please provide short or long."]
+      type: String,
+      enum: {
+        values: ["short", "long"],
+        message: "{VALUE} is not supported.",
+      },
+      required: [true, "Please provide short or long."],
     },
     entry: {
-        type: Number,
-        required: [true, "Please provide an entry point."]
+      type: Number,
+      required: [true, "Please provide an entry point."],
     },
     tp: {
-        type: Number,
+      type: Number,
     },
     sl: {
-        type: Number,
+      type: Number,
     },
     size: {
-        type: Number,
-        required: [true, "Please provide the size at your transaction."]
+      type: Number,
+      required: [true, "Please provide the size at your transaction."],
     },
     r: {
-        type: Number,
+      type: Number,
     },
     profit: {
-        type: Number
+      type: Number,
     },
     wl: {
-        type: String,
-        enum: {
-            values: ["win", "lose"],
-            message: "{VALUE} is not supported."
-        },
+      type: String,
+      enum: {
+        values: ["win", "lose"],
+        message: "{VALUE} is not supported.",
+      },
     },
     link: {
-        type: String,
+      type: String,
     },
     reasons: {
-        type: String,
+      type: String,
     },
     results: {
-        type: String,
+      type: String,
     },
     belongTo: {
-        type: mongoose.Types.ObjectId,
-        ref: "TradeList",
-        required: [true, "Please provide a trade list."],
-
+      type: mongoose.Types.ObjectId,
+      ref: "TradeList",
+      required: [true, "Please provide a trade list."],
     },
     createdBy: {
-        type: mongoose.Types.ObjectId,
-        ref: "User",
-        required: [true, "Please provide user."],
-    }
-}, { versionKey: false, timestamps: true });
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+      required: [true, "Please provide user."],
+    },
+  },
+  { versionKey: false, timestamps: true }
+);
 
-TradeSchema.methods.calculateProfitOrLoss = function (shortLong, size, entry, tp, sl, wl = "win") {
-    let profit = 0;
-    if (wl === "win") {
-        if (shortLong === "short") {
-            profit = (entry - tp) * size;
-        } else {
-            profit = (tp - entry) * size;
-        }
+TradeSchema.methods.calculateProfitOrLoss = function (
+  shortLong,
+  size,
+  entry,
+  tp,
+  sl,
+  wl = "win"
+) {
+  let profit = 0;
+  if (wl === "win") {
+    if (shortLong === "short") {
+      profit = (entry - tp) * size;
     } else {
-        if (shortLong === "short") {
-            profit = (entry - sl) * size;
-        } else {
-            profit = (sl - entry) * size;
-        }
+      profit = (tp - entry) * size;
     }
-    return profit.toFixed(2);
+  } else {
+    if (shortLong === "short") {
+      profit = (entry - sl) * size;
+    } else {
+      profit = (sl - entry) * size;
+    }
+  }
+  return profit.toFixed(2);
 };
 
-TradeSchema.methods.calculateR = function (shortLong, entry, tp, sl, wl = "win") {
-    let r = 0;
-    if (shortLong === "short") {
-        r = (entry - tp) / (sl - entry);
-    } else {
-        r = (tp - entry) / (entry - sl);
-    }
-    if (wl === "lose") {
-        r = -1;
-    }
-    return r.toFixed(2);
+TradeSchema.methods.calculateR = function (
+  shortLong,
+  entry,
+  tp,
+  sl,
+  wl = "win"
+) {
+  let r = 0;
+  if (shortLong === "short") {
+    r = (entry - tp) / (sl - entry);
+  } else {
+    r = (tp - entry) / (entry - sl);
+  }
+  if (wl === "lose") {
+    r = -1;
+  }
+  return r.toFixed(2);
 };
 
 module.exports = mongoose.model("Trade", TradeSchema);

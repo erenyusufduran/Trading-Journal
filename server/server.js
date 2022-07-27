@@ -7,12 +7,12 @@ const connectDB = require("./db/connect");
 const PORT = process.env.PORT;
 
 async function startServer() {
-    try {
-        await connectDB(process.env.MONGO_URI);
-        app.listen(PORT, () => console.log(`Server is listening on ${PORT}`));
-    } catch (err) {
-        console.log(err);
-    }
+  try {
+    await connectDB(process.env.MONGO_URI);
+    app.listen(PORT, () => console.log(`Server is listening on ${PORT}`));
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 startServer();
